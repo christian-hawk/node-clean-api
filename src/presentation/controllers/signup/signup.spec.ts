@@ -1,7 +1,7 @@
-import { AccountModel } from '../../domain/models/account'
-import { AddAccount, AddAccountModel } from '../../domain/use-cases/add-account'
-import { InvalidParamError, MissingParamError, ServerError } from '../errors'
-import { EmailValidator } from '../protocols'
+import { AccountModel } from '../../../domain/models/account'
+import { AddAccountModel } from '../../../domain/use-cases/add-account'
+import { InvalidParamError, MissingParamError, ServerError } from '../../errors'
+import { EmailValidator, AddAccount } from './signup-protocols'
 import { SignUpControler } from './signup'
 
 interface SutTypes {
@@ -164,6 +164,7 @@ describe('SignUp Controller', () => {
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
+
   test('should call AddAccount with correct values', () => {
     const { sut, addAccountStub } = makeSut()
     const addSpy = jest.spyOn(addAccountStub, 'add')
@@ -182,5 +183,23 @@ describe('SignUp Controller', () => {
       email: 'anyemail@mail.com',
       password: 'any_password'
     })
+  })
+
+  test('should return 500 if AddAccount throws', () => {
+    const { sut, addAccountStub } = makeSut()
+    jest.spyOn(addAccountStub, 'add').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const httpRequest = {
+      body: {
+        name: 'anyname',
+        email: 'anyemail@mail.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 })
