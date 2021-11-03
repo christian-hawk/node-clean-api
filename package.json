@@ -30,6 +30,6 @@
   },
   "dependencies": {
     "npm-check": "^5.9.2",
-    "validator": "^13.1.17"
+    "validator": "^13.7.0"
   }
 }
